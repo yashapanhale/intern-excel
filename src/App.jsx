@@ -70,6 +70,7 @@ function App() {
           <input
             type="file"
             class="w-full md:w-auto border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+            onChange={fileChange}
           />
           <button class="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition">
             Upload
@@ -115,5 +116,27 @@ function App() {
     </>
   );
 }
+
+const fileChange = async(e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try{
+    const res = await fetch('http://localhost:3000/upload',{
+      method: 'POST',
+      body: formData,
+    });
+    const data = await res.json();
+    console.log('Upload success:', data);
+} catch(err) {
+  console.error('Upload failed', err);
+}
+return(
+  <input type='file' accept=".csv, .xlsx, .xls" onChange={handleFileChange} />
+);
+};
 
 export default App;
