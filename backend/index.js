@@ -97,6 +97,11 @@ app.post('/upload', upload.single('file'), async (req, res) => {
   }
 });
 
+//Login page POST request:
+app.post('/api/login', (req,res)=>{
+  const {email, password} = req.body;
+});
+
 // Start Server
 app.listen(port, () => {
   console.log(`🚀 Server running at http://localhost:${port}`);
