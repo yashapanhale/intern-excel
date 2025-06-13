@@ -10,6 +10,7 @@ function Registration() {
     try{
       const res = await axios.post('http://localhost:3000/api/register',{name, email, password});
       console.log('Registration Successful: ', res.data);
+      alert(res.data.message);
     }catch(err){
       console.error('Registration Failed:', err.response?.data || err.message);
     }

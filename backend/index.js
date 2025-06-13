@@ -6,7 +6,10 @@ import path from 'path';
 import fs from 'fs';
 import dotenv from 'dotenv';
 import xlsx from 'xlsx';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import { fileURLToPath } from 'url';
+import User from './Model/user.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -98,8 +101,70 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 });
 
 //Login page POST request:
-app.post('/api/login', (req,res)=>{
-  const {email, password} = req.body;
+app.post('/api/login', async(req,res)=>{
+  try{
+    const {email, password} = req.body;
+
+    if(!email || !password){
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    const user = await User.findOne({ email });
+    if(!user){
+      return res.status(401).json({ message: 'Invalid Email or Password' });
+    }
+
+    const isCorrect = await bcrypt.compare(password, user.password);
+    if(!isCorrect){
+      return res.status(401).json({ message: 'Invalid Email or Password'});
+    }
+
+    const token = jwt.sign({ id:user._id, email: user.email }, process.env.JWT_SECRET, {
+      expiresIn: '2h',
+    });
+
+    res.status(200).json({
+      message: 'Login Successful',
+      token,
+      user:{
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  }catch(err){
+      console.error('Login error:', err);
+      res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+//Registration page POST request:
+
+app.post('/api/register', async(req,res)=>{
+  try{
+    const {name, email, password } = req.body;
+
+    if(!name || !email || !password){
+      return res.status(400).json({ message:'All fields are required'});
+    }
+
+    const existingUser = await User.findOne({ email });
+    if( existingUser ){
+      return res.status(409).json({ message: "User's Email Already Exists!!!" });
+    }
+
+    const hashPass = await bcrypt.hash(password, 10);
+
+    const newUser = new User({
+      name, email, password: hashPass,
+    });
+
+    await newUser.save();
+    res.status(201).json({ message:'User Registered Successfully, Welcome to VisEx!!!' });
+  }catch(err){
+    console.error('Registration Error:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 });
 
 // Start Server

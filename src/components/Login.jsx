@@ -7,11 +7,15 @@ function Login() {
   const handleLogin = async(e) => {
     e.preventDefault();
     try{
-      const res = await axios.post('http://localhost:3000/api/login', {email,password,});
+      const res = await axios.post('http://localhost:3000/api/login', {email,password});
       console.log('Login Successful', res.data);
+
+      localStorage.setItem('token', res.data.token);
+      alert('Logged in Succesfully!!!');
     }
     catch(err){
       console.error('Login Failed: ',err.response?.data || err.message);
+      alert(err.response?.data?.message || 'Login failed');
     }
   };
 
