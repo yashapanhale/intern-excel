@@ -1,8 +1,26 @@
-import React, { useState } from 'react';
+import React, { useEffect,useState } from 'react';
+import axios from 'axios';
 
 function Dashboard() {
+  const [data, setData] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const fileChange = (e) => setSelectedFile(e.target.files[0]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if(!token) return alert('Please login first');
+
+    axios.get('http://localhost:3000/api/user/dashboard', {
+      headers:{
+        Authorization: `Bearer ${token}`
+      }
+    })
+    .then(res => setData(res.data))
+    .catch(err => {
+      console.error('Error:', err);
+      alert('Access denied or seesion expired');
+    });
+  }, []);
 
   const uploadFile = async () => {
     if (!selectedFile) {
@@ -16,12 +34,14 @@ function Dashboard() {
     try {
       const res = await fetch('http://localhost:3000/upload', {
         method: 'POST',
+        headers:{Authorization: `Bearer ${localStorage.getItem('token')}`,},
         body: formData,
       });
       const data = await res.json();
 
       if(!res.ok){
         throw new Error(data.error || 'Upload Failed');
+        console.error('Upload failed', await res.text());
       }
       console.log('Upload success: ', data);
       alert('Upload successful!!!');
@@ -53,12 +73,15 @@ function Dashboard() {
           <h1 className="text-2xl font-semibold text-gray-800">Dashboard</h1>
           <div className="flex items-center space-x-4">
                 <span className="text-gray-600">
-                Hello, <strong className="text-indigo-600 cursor-pointer hover:underline">User</strong>
+                Hello, <strong className="text-indigo-600 cursor-pointer hover:underline">{data?.user?.name || 'User'}</strong>
                 </span>
                 <a href="/login" className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition">Login</a>
                 <a href="/register" className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition">Register</a>
                 <a href="/profile" className="text-indigo-600 hover:underline">Profile</a>
-                <button className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition">Logout</button>
+                <button className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition" onClick={()=>{
+                  localStorage.removeItem('token');
+                  window.location.href = '/login';
+                }}>Logout</button>
           </div>
         </header>
 

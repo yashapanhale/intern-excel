@@ -19,7 +19,6 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 const app = express();
 const port = process.env.PORT || 3000;
 const DBurl = process.env.MONGO_URI;
-const userID = 'DemoUser';
 
 console.log("✅ MONGO_URI:", process.env.MONGO_URI);
 
@@ -39,7 +38,7 @@ mongoose.connect(DBurl, {
 
 // Mongoose Schema
 const excelSchema = new mongoose.Schema({
-  username: { type: String, required: true },
+  userID: { type: String, required: true },
   data: { type: Array, required: true },
   uploadedAt: { type: Date, default: Date.now }
 });
@@ -48,7 +47,7 @@ const ExcelData = mongoose.model('ExcelData', excelSchema, 'Excel_Data');
 // Multer Setup
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const userDir = path.join('uploads', userID);
+    const userDir = path.join('uploads', req.user.id);
     if (!fs.existsSync(userDir)) {
       fs.mkdirSync(userDir, { recursive: true });
     }
@@ -72,7 +71,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({ storage, fileFilter });
 
 // Upload Route
-app.post('/upload', upload.single('file'), async (req, res) => {
+app.post('/upload', verifyToken,upload.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
   try {
@@ -83,7 +82,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     const data = xlsx.utils.sheet_to_json(sheet);
 
     const newExData = new ExcelData({
-      username: userID,
+      userID: req.user.id,
       data: data,
     });
 
@@ -135,6 +134,34 @@ app.post('/api/login', async(req,res)=>{
   }catch(err){
       console.error('Login error:', err);
       res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+//middleware to verify JWT
+function verifyToken(req,res,next){
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if(!token) return res.status(401).json({ message:'No token provided' });
+
+  try{
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  }catch(err){
+    res.status(403).json({ message:'Invalid Token' });
+  }
+};
+
+app.get('/api/user/dashboard',  verifyToken, async(req,res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    res.status(200).json({ message: 'Welcome to the dashboard!', user });
+  } catch (err) {
+    console.error('Dashboard error:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
