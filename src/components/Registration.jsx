@@ -19,6 +19,8 @@ function Registration() {
     <div>
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
   <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+    <h1 className="text-6xl font-bold text-indigo-600 mb-6 text-center">VisEx</h1>
+    <p className="text-blue-600 text-center mb-8">Visualize your Excel data with ease</p>
     <h2 className="text-2xl font-bold text-center text-blue-600 mb-6">Create a New Account</h2>
     <form onSubmit={handleRegister} className="space-y-4">
       <input type="text" placeholder="Full Name" value={name} onChange={(e) => setName(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded" required/>

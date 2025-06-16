@@ -194,6 +194,21 @@ app.post('/api/register', async(req,res)=>{
   }
 });
 
+// api to extract data from saved data
+app.get('/api/user/data', verifyToken, async (req,res) => {
+  try{
+    const userID = req.user.id;
+    const latestUpload = await ExcelData.findOne({ userID }).sort({ uploadedAt: -1 });
+    if(!latestUpload){
+      return res.status(404).json({ message: 'No data found' });
+    }
+    res.status(200).json({ data:latestUpload.data });
+  }catch(err){
+    console.error('Error fetching data: ',err);
+    res.status(500).json({ message:'Server Error' });
+  }
+});
+
 // Start Server
 app.listen(port, () => {
   console.log(`🚀 Server running at http://localhost:${port}`);
