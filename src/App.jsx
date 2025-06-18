@@ -3,7 +3,8 @@ import {BrowserRouter as Router, Routes, Route, Navigate} from 'react-router-dom
 
 import Login from './components/Login';
 import Registration from './components/Registration';
-import Dashboard from './pages/dashboard';
+import Dashboard from './components/dashboard';
+import UploadHistory from './components/UploadHistory';
 
 function App(){
   return(
@@ -13,6 +14,7 @@ function App(){
         <Route path='/login' element={<Login />} />
         <Route path='/register' element={<Registration />} />
         <Route path='/dashboard' element={<Dashboard />} />
+        <Route path='/upload-history' element={<UploadHistory/>}/>
       </Routes>
     </Router>
   );

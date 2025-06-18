@@ -1,6 +1,8 @@
 import React, { useEffect,useState } from 'react';
 import axios from 'axios';
 import { Bar } from 'react-chartjs-2';
+import UploadModel from '../components/UploadModel';
+import { Link } from 'react-router-dom';
 import {
   Chart as Chartjs,
   CategoryScale,
@@ -29,6 +31,7 @@ function Dashboard() {
   const [columnNames, setColumnNames] = useState([]);
   const [selectedX, setSelectedX] = useState('');
   const [selectedY, setSelectedY] = useState(''); 
+  const [isUploadModelOpen, setUploadModelOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -44,26 +47,6 @@ function Dashboard() {
       console.error('Error:', err);
       alert('Access denied or seesion expired');
     });
-
-    const fetchData = async () => {
-      try{
-        const token = localStorage.getItem('token');
-        const res = await axios.get('http://localhost:3000/api/user/data',{
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = res.data.data;
-        setExcelData(data);
-        if(data.length > 0){
-          const columns = Object.keys(data[0]);
-          setColumnNames(columns);
-          setSelectedX(columns[0]);
-          setSelectedY(columns[1]);
-        }  
-      }catch(err){
-        console.error('Error fetching Excel data:', err);
-      }
-    };
-    fetchData();
   }, []);
 
   const uploadFile = async () => {
@@ -89,6 +72,19 @@ function Dashboard() {
       }
       console.log('Upload success: ', data);
       alert('Upload successful!!!');
+
+      const token = localStorage.getItem('token');
+      const freshRes = await axios.get('http://localhost:3000/api/user/data?fresh=true',{
+        headers: {Authorization: `Bearer ${token}`},
+      });
+      const newData = freshRes.data.data;
+      setExcelData(newData);
+      if(newData.length > 0){
+        const columns = Object.keys(newData[0]);
+        setColumnNames(columns);
+        setSelectedX(columns[0]);
+        setSelectedY(columns[1]);
+      }
     } catch (err) {
       console.error('Upload failed', err);
       alert('Upload failed');
@@ -105,7 +101,9 @@ function Dashboard() {
             <nav className="mt-4">
             <ul>
                 <li className="px-6 py-3 hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 transition-colors cursor-pointer">Dashboard</li>
-                <li className="px-6 py-3 hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 transition-colors cursor-pointer">Upload History</li>
+                <li className="px-6 py-3 hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 transition-colors cursor-pointer"
+                onClick={() => setUploadModelOpen(true)}>Upload File</li>
+                <Link to="/upload-history"><li className="px-6 py-3 hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 transition-colors cursor-pointer">Upload History</li></Link>
                 <li className="px-6 py-3 hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 transition-colors cursor-pointer">Settings</li>
             </ul>
             </nav>
@@ -121,27 +119,21 @@ function Dashboard() {
                 </span>
                 <a href="/login" className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition">Login</a>
                 <a href="/register" className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition">Register</a>
-                <button className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition" onClick={()=>{
-                  localStorage.removeItem('token');
-                  window.location.href = '/login';
-                }}>Logout</button>
+                <button className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+                onClick={() => {localStorage.removeItem('token');
+                  setExcelData([]);
+                  setColumnNames([]);
+                  setSelectedX('');
+                  setSelectedY('');
+                  setTimeout(() => {window.location.href = '/login';},100)}}>
+                Logout
+              </button>
+
           </div>
         </header>
 
         <main className="flex-1 p-6 space-y-6">
-          {/* Upload Section */}
-           <section className="bg-white rounded-lg shadow p-6 border border-indigo-100">
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">Upload Excel File</h2>
-                <div className="flex flex-col md:flex-row items-center gap-4">
-                <input
-                    type="file"
-                    accept=".csv, .xlsx, .xls"
-                    className="w-full md:w-auto border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                    onChange={fileChange}/>
-                <button className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition"
-                    onClick={uploadFile}> Upload </button>
-                </div>
-           </section>
+
 
           <section className="bg-white rounded-lg shadow p-6 border border-indigo-100">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Generated Graph</h2>
@@ -200,6 +192,11 @@ function Dashboard() {
         </section>
       </main>
     </div>
+    <UploadModel
+    isOpen={isUploadModelOpen}
+    onClose={() => setUploadModelOpen(false)}
+    onFileChange={fileChange}
+    onUpload={uploadFile}/>
   </div>
 );
 }

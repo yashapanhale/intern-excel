@@ -10,6 +10,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { fileURLToPath } from 'url';
 import User from './Model/user.js';
+import UploadHistory from './Model/UploadHistory.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -84,9 +85,20 @@ app.post('/upload', verifyToken,upload.single('file'), async (req, res) => {
     const newExData = new ExcelData({
       userID: req.user.id,
       data: data,
+      originalFileName: req.file.originalname,
     });
 
     await newExData.save();
+    fs.unlinkSync(fPath);
+
+    const headers = Object.keys(data[0] || {});
+    const newHistory = new UploadHistory({
+      userID: req.user.id,
+      fileName: req.file.originalname,
+      headers: headers,
+      rawData: data,
+    });
+    await newHistory.save();
     fs.unlinkSync(fPath);
 
     res.json({
@@ -198,6 +210,12 @@ app.post('/api/register', async(req,res)=>{
 app.get('/api/user/data', verifyToken, async (req,res) => {
   try{
     const userID = req.user.id;
+
+    const isFresh = req.query.fresh === 'true';
+    if(!isFresh){
+      return res.status(204).json({ message: 'No fresh request' });
+    }
+
     const latestUpload = await ExcelData.findOne({ userID }).sort({ uploadedAt: -1 });
     if(!latestUpload){
       return res.status(404).json({ message: 'No data found' });
@@ -206,6 +224,17 @@ app.get('/api/user/data', verifyToken, async (req,res) => {
   }catch(err){
     console.error('Error fetching data: ',err);
     res.status(500).json({ message:'Server Error' });
+  }
+});
+
+// api to save user upload history
+app.get('/api/user/history', verifyToken, async (req,res) => {
+  try{
+    const uploads = await UploadHistory.find({ userID: req.user.id }).sort({ uploadDate: -1 });
+    res.status(200).json({ history: uploads });
+  }catch(err){
+    console.error('Upload history fetch error: ',err);
+    res.status(500).json({ message: 'Error fetchingupload history' });
   }
 });
 
