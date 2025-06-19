@@ -40,6 +40,7 @@ mongoose.connect(DBurl, {
 // Mongoose Schema
 const excelSchema = new mongoose.Schema({
   userID: { type: String, required: true },
+  originalFileName: { type: String },
   data: { type: Array, required: true },
   uploadedAt: { type: Date, default: Date.now }
 });
@@ -99,7 +100,6 @@ app.post('/upload', verifyToken,upload.single('file'), async (req, res) => {
       rawData: data,
     });
     await newHistory.save();
-    fs.unlinkSync(fPath);
 
     res.json({
       message: '✅ File parsed and saved successfully',
@@ -164,6 +164,8 @@ function verifyToken(req,res,next){
     res.status(403).json({ message:'Invalid Token' });
   }
 };
+
+//dashboard api:
 
 app.get('/api/user/dashboard',  verifyToken, async(req,res) => {
   try {
@@ -235,6 +237,18 @@ app.get('/api/user/history', verifyToken, async (req,res) => {
   }catch(err){
     console.error('Upload history fetch error: ',err);
     res.status(500).json({ message: 'Error fetchingupload history' });
+  }
+});
+
+// Add this route right after /api/user/history:
+app.get('/api/user/data/:id', verifyToken, async (req, res) => {
+  try {
+    const record = await UploadHistory.findById(req.params.id);
+    if (!record) return res.status(404).json({ message: 'File not found' });
+    res.status(200).json({ data: record.rawData });
+  } catch (err) {
+    console.error('Error fetching specific file:', err);
+    res.status(500).json({ message: 'Server Error' });
   }
 });
 

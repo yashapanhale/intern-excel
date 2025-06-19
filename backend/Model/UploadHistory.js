@@ -19,7 +19,7 @@ const uploadHistorySchema=mongoose.Schema({
       headers:
       {
         type:[String],
-        reqired:true
+        required:true
       },
       rawData:
       {

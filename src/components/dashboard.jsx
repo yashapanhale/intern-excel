@@ -1,24 +1,27 @@
-import React, { useEffect,useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Bar } from 'react-chartjs-2';
+import { Bar, Line, Pie } from 'react-chartjs-2';
 import UploadModel from '../components/UploadModel';
-import { Link } from 'react-router-dom';
+import NavSideBar from './NavSideBar';
 import {
   Chart as Chartjs,
   CategoryScale,
   LinearScale,
   BarElement,
-  PointElement,
   LineElement,
+  PointElement,
+  ArcElement,
   Tooltip,
   Legend,
 } from 'chart.js';
-Chartjs.register (
+
+Chartjs.register(
   CategoryScale,
   LinearScale,
   BarElement,
-  PointElement,
   LineElement,
+  PointElement,
+  ArcElement,
   Tooltip,
   Legend
 );
@@ -30,56 +33,55 @@ function Dashboard() {
   const [ExcelData, setExcelData] = useState([]);
   const [columnNames, setColumnNames] = useState([]);
   const [selectedX, setSelectedX] = useState('');
-  const [selectedY, setSelectedY] = useState(''); 
+  const [selectedY, setSelectedY] = useState('');
   const [isUploadModelOpen, setUploadModelOpen] = useState(false);
+  const [chartType, setChartType] = useState('Bar');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if(!token) return alert('Please login first');
+    if (!token) return alert('Please login first');
 
     axios.get('http://localhost:3000/api/user/dashboard', {
-      headers:{
+      headers: {
         Authorization: `Bearer ${token}`
       }
     })
-    .then(res => setData(res.data))
-    .catch(err => {
-      console.error('Error:', err);
-      alert('Access denied or seesion expired');
-    });
+      .then(res => setData(res.data))
+      .catch(err => {
+        console.error('Error:', err);
+        alert('Access denied or session expired');
+      });
   }, []);
 
   const uploadFile = async () => {
     if (!selectedFile) {
-      alert('Please select a file first!!!');
+      alert('Please select a file first!');
       return;
     }
 
-    const formData = new FormData(); 
+    const formData = new FormData();
     formData.append('file', selectedFile);
 
     try {
       const res = await fetch('http://localhost:3000/upload', {
         method: 'POST',
-        headers:{Authorization: `Bearer ${localStorage.getItem('token')}`,},
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         body: formData,
       });
       const data = await res.json();
 
-      if(!res.ok){
+      if (!res.ok) {
         throw new Error(data.error || 'Upload Failed');
-        console.error('Upload failed', await res.text());
       }
-      console.log('Upload success: ', data);
-      alert('Upload successful!!!');
+      alert('Upload successful!');
 
-      const token = localStorage.getItem('token');
-      const freshRes = await axios.get('http://localhost:3000/api/user/data?fresh=true',{
-        headers: {Authorization: `Bearer ${token}`},
+      const freshRes = await axios.get('http://localhost:3000/api/user/data?fresh=true', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
+
       const newData = freshRes.data.data;
       setExcelData(newData);
-      if(newData.length > 0){
+      if (newData.length > 0) {
         const columns = Object.keys(newData[0]);
         setColumnNames(columns);
         setSelectedX(columns[0]);
@@ -91,59 +93,82 @@ function Dashboard() {
     }
   };
 
+  // Shared data for Bar & Line
+  const chartData = {
+    labels: ExcelData.map((row) => row[selectedX]),
+    datasets: [
+      {
+        label: `${selectedY} vs ${selectedX}`,
+        data: ExcelData.map((row) => parseFloat(row[selectedY])),
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1,
+        fill: false,
+      }
+    ]
+  };
+
+  // Options (shared)
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: { position: 'top' },
+      tooltip: { mode: 'index', intersect: false },
+    },
+    scales: {
+      x: { title: { display: true, text: selectedX } },
+      y: { title: { display: true, text: selectedY } },
+    },
+  };
+
+  // Pie data
+  const pieData = {
+    labels: ExcelData.map((row) => row[selectedX]),
+    datasets: [
+      {
+        label: selectedY,
+        data: ExcelData.map((row) => parseFloat(row[selectedY])),
+        backgroundColor: [
+          '#FF6384', '#36A2EB', '#FFCE56', '#8E44AD',
+          '#2ECC71', '#E67E22', '#3498DB', '#E74C3C',
+        ],
+      }
+    ],
+  };
+
   return (
-    <div className="min-h-screen flex bg-gray-50">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-lg hidden md:block">
-            <div className="p-6 text-4xl font-bold text-indigo-600 border-b border-indigo-100">
-                VisEx
-            </div>
-            <nav className="mt-4">
-            <ul>
-                <li className="px-6 py-3 hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 transition-colors cursor-pointer">Dashboard</li>
-                <li className="px-6 py-3 hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 transition-colors cursor-pointer"
-                onClick={() => setUploadModelOpen(true)}>Upload File</li>
-                <Link to="/upload-history"><li className="px-6 py-3 hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 transition-colors cursor-pointer">Upload History</li></Link>
-                <li className="px-6 py-3 hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 transition-colors cursor-pointer">Settings</li>
-            </ul>
-            </nav>
-      </aside>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        <header className="bg-white shadow-md px-6 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-semibold text-gray-800">Dashboard</h1>
-          <div className="flex items-center space-x-4">
-                <span className="text-gray-600">
-                Hello, <strong className="text-indigo-600 cursor-pointer hover:underline">{data?.user?.name || 'User'}</strong>
-                </span>
-                <a href="/login" className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition">Login</a>
-                <a href="/register" className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition">Register</a>
-                <button className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
-                onClick={() => {localStorage.removeItem('token');
-                  setExcelData([]);
-                  setColumnNames([]);
-                  setSelectedX('');
-                  setSelectedY('');
-                  setTimeout(() => {window.location.href = '/login';},100)}}>
-                Logout
-              </button>
-
-          </div>
-        </header>
-
-        <main className="flex-1 p-6 space-y-6">
-
-
-          <section className="bg-white rounded-lg shadow p-6 border border-indigo-100">
+    <NavSideBar
+      data={data}
+      setExcelData={setExcelData}
+      setColumnNames={setColumnNames}
+      setSelectedX={setSelectedX}
+      setSelectedY={setSelectedY}
+      setUploadModelOpen={setUploadModelOpen}
+    >
+      <main className="flex-1 p-6 space-y-6">
+        <section className="bg-white rounded-lg shadow p-6 border border-indigo-100">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Generated Graph</h2>
-          <div className="grid md:grid-cols-2 gap-6 mb-6">
+
+          <div className="grid md:grid-cols-3 gap-6 mb-6">
+            <div>
+              <label className="block mb-1 font-medium text-gray-700">Chart Type:</label>
+              <select
+                value={chartType}
+                onChange={(e) => setChartType(e.target.value)}
+                className="w-full border border-gray-300 rounded-md px-3 py-2"
+              >
+                <option value="Bar">Bar</option>
+                <option value="Line">Line</option>
+                <option value="Pie">Pie</option>
+              </select>
+            </div>
             <div>
               <label className="block mb-1 font-medium text-gray-700">X Axis:</label>
               <select
                 value={selectedX}
                 onChange={(e) => setSelectedX(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2">
+                className="w-full border border-gray-300 rounded-md px-3 py-2"
+              >
                 {columnNames.map((col) => (
                   <option key={col} value={col}>{col}</option>
                 ))}
@@ -154,7 +179,8 @@ function Dashboard() {
               <select
                 value={selectedY}
                 onChange={(e) => setSelectedY(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2">
+                className="w-full border border-gray-300 rounded-md px-3 py-2"
+              >
                 {columnNames.map((col) => (
                   <option key={col} value={col}>{col}</option>
                 ))}
@@ -163,42 +189,50 @@ function Dashboard() {
           </div>
 
           {ExcelData.length > 0 && selectedX && selectedY && (
-            <div className="bg-indigo-50 min-h-[400px] rounded-lg p-4">
-              <Bar
-                data={{
-                  labels: ExcelData.map((row) => row[selectedX]),
-                  datasets: [{
-                    label: `${selectedY} vs ${selectedX}`,
-                    data: ExcelData.map((row) => parseFloat(row[selectedY])),
-                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1,
-                  }],
-                }}
-                options={{
-                  responsive: true,
-                  plugins: {
-                    legend: { position: 'top' },
-                    tooltip: { mode: 'index', intersect: false },
-                  },
-                  scales: {
-                    x: { title: { display: true, text: selectedX } },
-                    y: { title: { display: true, text: selectedY } },
-                  },
-                }}
-              />
+            <div className="bg-indigo-50 rounded-lg p-4 h-[400px]">
+              {chartType === 'Bar' && (
+                <Bar
+                  data={chartData}
+                  options={{
+                    ...chartOptions,
+                    maintainAspectRatio: false,
+                  }}
+                  height={400}
+                />
+              )}
+              {chartType === 'Line' && (
+                <Line
+                  data={chartData}
+                  options={{
+                    ...chartOptions,
+                    maintainAspectRatio: false,
+                  }}
+                  height={400}
+                />
+              )}
+              {chartType === 'Pie' && (
+                <Pie
+                  data={pieData}
+                  options={{
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top' } },
+                  }}
+                  height={400}
+                />
+              )}
             </div>
           )}
         </section>
       </main>
-    </div>
-    <UploadModel
-    isOpen={isUploadModelOpen}
-    onClose={() => setUploadModelOpen(false)}
-    onFileChange={fileChange}
-    onUpload={uploadFile}/>
-  </div>
-);
+
+      <UploadModel
+        isOpen={isUploadModelOpen}
+        onClose={() => setUploadModelOpen(false)}
+        onFileChange={fileChange}
+        onUpload={uploadFile}
+      />
+    </NavSideBar>
+  );
 }
 
 export default Dashboard;
