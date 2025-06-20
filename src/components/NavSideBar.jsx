@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const NavSideBar = ({ 
     children,
@@ -9,6 +9,7 @@ const NavSideBar = ({
     setSelectedX,
     setSelectedY,
     setUploadModelOpen}) => {
+        const navigate = useNavigate();
         const handleLogout = () => {
         localStorage.removeItem('token');
         setExcelData([]);
@@ -16,7 +17,7 @@ const NavSideBar = ({
         setSelectedX('');
         setSelectedY('');
         setTimeout(() => {
-        window.location.href = '/login';
+        navigate('/login');
         }, 100);
         };
     return(
@@ -27,7 +28,7 @@ const NavSideBar = ({
                 <nav className='flex flex-col space-y-3'>
                     <Link to='/dashboard' className='hover:text-yellow-400'>Dashboard</Link>
                     <Link to='/upload-history' className='hover:text-yellow-400'>Upload History</Link>
-                    <button onClick={() => setUploadModelOpen(true)}
+                    <button  type='button' onClick={() => setUploadModelOpen(true)}
                     className='text-left hover:text-yellow-400'>Upload File</button>
                     <Link className='hover:text-yellow-400'>Settings</Link>
                 </nav>
@@ -40,16 +41,16 @@ const NavSideBar = ({
                         Hello, <span className="text-indigo-600">{data?.user?.name || 'Guest'}</span>
                     </h2>
                     <div className="flex items-center space-x-4">
-                        <button 
+                        <button type='button'
                         onClick={() => setUploadModelOpen(true)} 
                         className="text-base hover:scale-110 transition-transform" 
                         title="Upload File"
                         >Upload File ⬆️</button>
-                        <button 
+                        <button type='button'
                         onClick={() => {}} 
                         className="text-base hover:scale-110 transition-transform" 
                         title="Toggle Dark Mode">Toggle Dark Mode🌙</button>
-                        <button className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                        <button type='button' className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
                         onClick={handleLogout}>Logout</button>
                     </div>
                 </header>

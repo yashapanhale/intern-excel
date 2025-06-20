@@ -111,6 +111,16 @@ app.post('/upload', verifyToken,upload.single('file'), async (req, res) => {
   }
 });
 
+app.get('/upload', verifyToken, async (req, res) => {
+  try {
+    const files = await UploadHistory.find({ userID: req.user.id });
+    res.status(200).json({ files });
+  } catch (err) {
+    console.error('❌ Error fetching upload history:', err);
+    res.status(500).json({ error: 'Failed to get upload history' });
+  }
+});
+
 //Login page POST request:
 app.post('/api/login', async(req,res)=>{
   try{

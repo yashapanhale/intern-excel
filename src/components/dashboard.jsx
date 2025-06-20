@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { Bar, Line, Pie } from 'react-chartjs-2';
 import UploadModel from '../components/UploadModel';
@@ -36,22 +36,37 @@ function Dashboard() {
   const [selectedY, setSelectedY] = useState('');
   const [isUploadModelOpen, setUploadModelOpen] = useState(false);
   const [chartType, setChartType] = useState('Bar');
+  const [uploadHistory, setUploadHistory] = useState([]);
+  const chartRef = useRef(null); 
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) return alert('Please login first');
 
     axios.get('http://localhost:3000/api/user/dashboard', {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+      headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => setData(res.data))
       .catch(err => {
         console.error('Error:', err);
         alert('Access denied or session expired');
       });
+
+    // Fetch history
+    fetchUploadHistory();
   }, []);
+
+  const fetchUploadHistory = async () => {
+    try {
+      const res = await axios.get('http://localhost:3000/upload', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      setUploadHistory(res.data.files || []);
+    } catch (err) {
+      console.error('Failed to fetch upload history:', err);
+      setUploadHistory([]);
+    }
+  };
 
   const uploadFile = async () => {
     if (!selectedFile) {
@@ -68,19 +83,31 @@ function Dashboard() {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         body: formData,
       });
+
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Upload Failed');
 
-      if (!res.ok) {
-        throw new Error(data.error || 'Upload Failed');
-      }
       alert('Upload successful!');
+      setUploadModelOpen(false);
+      fetchUploadHistory(); // Refresh list
 
-      const freshRes = await axios.get('http://localhost:3000/api/user/data?fresh=true', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      // Load the newly uploaded file
+      loadDataByFilename(data.filename);
+    } catch (err) {
+      console.error('Upload failed', err);
+      alert('Upload failed');
+    }
+  };
+
+  const loadDataByFilename = async (filename) => {
+    try {
+      const res = await axios.get(`http://localhost:3000/api/user/data?filename=${filename}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
 
-      const newData = freshRes.data.data;
+      const newData = res.data.data;
       setExcelData(newData);
+
       if (newData.length > 0) {
         const columns = Object.keys(newData[0]);
         setColumnNames(columns);
@@ -88,12 +115,11 @@ function Dashboard() {
         setSelectedY(columns[1]);
       }
     } catch (err) {
-      console.error('Upload failed', err);
-      alert('Upload failed');
+      console.error('Failed to load file data', err);
+      alert('Could not load selected file data');
     }
   };
 
-  // Shared data for Bar & Line
   const chartData = {
     labels: ExcelData.map((row) => row[selectedX]),
     datasets: [
@@ -108,7 +134,6 @@ function Dashboard() {
     ]
   };
 
-  // Options (shared)
   const chartOptions = {
     responsive: true,
     plugins: {
@@ -121,7 +146,6 @@ function Dashboard() {
     },
   };
 
-  // Pie data
   const pieData = {
     labels: ExcelData.map((row) => row[selectedX]),
     datasets: [
@@ -146,7 +170,30 @@ function Dashboard() {
       setUploadModelOpen={setUploadModelOpen}
     >
       <main className="flex-1 p-6 space-y-6">
+        {/* Upload History Section 
         <section className="bg-white rounded-lg shadow p-6 border border-indigo-100">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Upload History</h2>
+          {uploadHistory.length === 0 ? (
+            <p className="text-gray-500">No uploads found.</p>
+          ) : (
+            <ul className="space-y-2">
+              {uploadHistory.map((file, index) => (
+                <li key={index}>
+                  <button
+                    onClick={() => loadDataByFilename(file.filename)}
+                    className="text-blue-600 hover:underline"
+                  >
+                    {file.filename}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>*/}
+
+        {/* Chart Section */}
+        <section ref={chartRef}
+        className="bg-white rounded-lg shadow p-6 border border-indigo-100">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Generated Graph</h2>
 
           <div className="grid md:grid-cols-3 gap-6 mb-6">
@@ -193,20 +240,14 @@ function Dashboard() {
               {chartType === 'Bar' && (
                 <Bar
                   data={chartData}
-                  options={{
-                    ...chartOptions,
-                    maintainAspectRatio: false,
-                  }}
+                  options={{ ...chartOptions, maintainAspectRatio: false }}
                   height={400}
                 />
               )}
               {chartType === 'Line' && (
                 <Line
                   data={chartData}
-                  options={{
-                    ...chartOptions,
-                    maintainAspectRatio: false,
-                  }}
+                  options={{ ...chartOptions, maintainAspectRatio: false }}
                   height={400}
                 />
               )}
