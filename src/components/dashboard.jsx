@@ -41,7 +41,7 @@ function Dashboard() {
     const token = localStorage.getItem('token');
     if (!token) return alert('Please login first');
 
-    axios.get('http://localhost:3000/api/user/dashboard', {
+    axios.get('http://localhost:3000/api/dashboard', {
       headers: {
         Authorization: `Bearer ${token}`
       }

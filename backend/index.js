@@ -1,16 +1,13 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import multer from 'multer';
 import cors from 'cors';
 import path from 'path';
-import fs from 'fs';
 import dotenv from 'dotenv';
-import xlsx from 'xlsx';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import { fileURLToPath } from 'url';
-import User from './Model/user.js';
-import UploadHistory from './Model/UploadHistory.js';
+import authRoute from './routes/authRoute.js';
+import uploadRoute from './routes/uploadRoute.js';
+import historyRoute from './routes/historyRoute.js';
+import { routeLogger } from './middleware/routeLogger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,7 +18,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 const DBurl = process.env.MONGO_URI;
 
-console.log("✅ MONGO_URI:", process.env.MONGO_URI);
+//console.log('URL:', DBurl);
 
 // Middleware
 app.use(cors());
@@ -37,7 +34,26 @@ mongoose.connect(DBurl, {
   console.error("❌ MongoDB connection error:", err);
 });
 
-// Mongoose Schema
+//routes:
+app.use('/api',authRoute);
+app.use('/upload', uploadRoute);
+app.use('/api/user', historyRoute);
+app.use(routeLogger);
+
+// Start Server
+app.listen(port, () => {
+  console.log(`🚀 Server running at http://localhost:${port}`);
+});
+
+
+/*import User from './Model/user.js';
+import UploadHistory from './Model/UploadHistory.js';
+import xlsx from 'xlsx';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import fs from 'fs';
+import multer from 'multer';*/
+/*  Mongoose Schema
 const excelSchema = new mongoose.Schema({
   userID: { type: String, required: true },
   originalFileName: { type: String },
@@ -250,9 +266,4 @@ app.get('/api/user/data/:id', verifyToken, async (req, res) => {
     console.error('Error fetching specific file:', err);
     res.status(500).json({ message: 'Server Error' });
   }
-});
-
-// Start Server
-app.listen(port, () => {
-  console.log(`🚀 Server running at http://localhost:${port}`);
-});
+});*/
