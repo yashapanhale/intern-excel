@@ -2,6 +2,8 @@ import express from 'express';
 import { verifyToken } from '../middleware/auth.js';
 import UploadHistory from '../models/UploadHistory.js';
 import ExcelData from '../models/ExcelData.js';
+import jwt from 'jsonwebtoken';
+import User from '../models/user.js';
 
 const router = express.Router();
 
@@ -44,6 +46,17 @@ router.get('/data', verifyToken, async (req, res) => {
   } catch (err) {
     console.error('Fresh data error:', err);
     res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+router.get('/profile', verifyToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password'); // ✅ Use capital 'User'
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json(user);
+  } catch (err) {
+    console.error('Error fetching user profile:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 

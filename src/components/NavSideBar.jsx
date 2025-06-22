@@ -19,6 +19,7 @@ const NavSideBar = ({
         window.location.href = '/login';
         }, 100);
         };
+    console.log("NavSideBar received user:", data?.user);
     return(
         <div className='flex h-screen'>
             {/*Sidebar Component:*/}
