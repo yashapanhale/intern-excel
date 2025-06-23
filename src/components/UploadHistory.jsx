@@ -4,7 +4,7 @@ import NavSideBar from './NavSideBar';
 import UploadModel from './UploadModel';
 import { useAuth } from '../UserDetails';
 
-const UploadHistory = () => {
+const UploadHistory = ({ role }) => {
   const [history, setHistory] = useState([]);
   const [error, setError] = useState('');
   const [uploadModelOpen, setUploadModelOpen] = useState(false);
@@ -61,6 +61,7 @@ const UploadHistory = () => {
       />
 
       <NavSideBar
+        role={role}
         data={{ user }}
         setExcelData={() => {}}
         setColumnNames={() => {}}
