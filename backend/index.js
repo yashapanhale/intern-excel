@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 import authRoute from './routes/authRoute.js';
 import uploadRoute from './routes/uploadRoute.js';
 import historyRoute from './routes/historyRoute.js';
-import { routeLogger } from './middleware/routeLogger.js';
+//import { routeLogger } from './middleware/routeLogger.js';
 import adminRoutes from './routes/admin.js';
 
 
@@ -40,7 +40,7 @@ mongoose.connect(DBurl, {
 app.use('/api',authRoute);
 app.use('/upload', uploadRoute);
 app.use('/api/user', historyRoute);
-app.use(routeLogger);
+//app.use(routeLogger);
 app.use('/api/admin', adminRoutes);
 
 // Start Server
