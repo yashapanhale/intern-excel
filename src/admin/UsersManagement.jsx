@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import NavSideBar from '../components/NavSideBar';
 
-const UsersList = () => {
+const UserManagement = ({ currentUser }) => {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -24,41 +24,65 @@ const UsersList = () => {
     fetchUsers();
   }, []);
 
+  const handleDelete = async (userId) => {
+    if (!window.confirm('Are you sure you want to delete this user?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:3000/api/admin/users/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUsers(users.filter((u) => u._id !== userId));
+      alert('User deleted successfully!');
+    } catch (err) {
+      alert('Failed to delete user.');
+      console.error('Delete user error:', err);
+    }
+  };
+
   // Pagination logic
   const totalPages = Math.ceil(users.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentItems = users.slice(startIndex, startIndex + itemsPerPage);
 
   return (
-    <NavSideBar role="admin">
+    <NavSideBar role="admin" data={currentUser}>
       <div className="p-6 max-w-5xl mx-auto">
-        <h2 className="text-2xl font-bold mb-6">👥 Users List</h2>
+        <h2 className="text-2xl font-bold mb-6">👥 User Management</h2>
         {error && <p className="text-red-500 mb-4">{error}</p>}
 
         {users.length === 0 ? (
           <p className="text-gray-600">No users found.</p>
         ) : (
           <>
-            <div className="grid grid-cols-4 gap-4 font-semibold border-b pb-2 mb-4 text-indigo-700">
+            <div className="grid grid-cols-5 gap-4 font-semibold border-b pb-2 mb-4 text-indigo-700">
               <div>Username</div>
               <div>Email</div>
               <div>No. of Files</div>
               <div>Role</div>
+              <div>Actions</div>
             </div>
             {currentItems.map((user) => (
-                <div key={user._id} className="grid grid-cols-4 gap-4 border-b pb-2 mb-2 items-center">
-                  <div>{user.username}</div>
-                  <div className="truncate">{user.email}</div>
-                  <div>{user.fileCount}</div>
-                  <div>
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      (user.role || 'user') === 'admin' ? 'bg-indigo-500 text-white' : 'bg-gray-200 text-gray-700'
-                    }`}>
-                      {user.role || 'user'}
-                    </span>
-                  </div>
+              <div key={user._id} className="grid grid-cols-5 gap-4 border-b pb-2 mb-2 items-center">
+                <div>{user.username}</div>
+                <div className="truncate">{user.email}</div>
+                <div>{user.fileCount}</div>
+                <div>
+                  <span className={`px-2 py-1 rounded text-xs ${
+                    (user.role || 'user') === 'admin' ? 'bg-indigo-500 text-white' : 'bg-gray-200 text-gray-700'
+                  }`}>
+                    {user.role || 'user'}
+                  </span>
                 </div>
-              ))}
+                <div>
+                  <button
+                    className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                    onClick={() => handleDelete(user._id)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
             {/* Pagination Buttons */}
             <div className="flex justify-center items-center mt-6 space-x-4">
               <button
@@ -90,4 +114,4 @@ const UsersList = () => {
   );
 };
 
-export default UsersList;
+export default UserManagement;

@@ -23,7 +23,7 @@ ChartJS.register(
   Legend
 );
 
-function AdminDashboard({ data }) {
+function AdminDashboard({ data, currentUser }) {
   const [stats, setStats] = useState(null);
   const [ExcelData, setExcelData] = useState([]);
   const [selectedX, setSelectedX] = useState('date');
@@ -86,7 +86,7 @@ function AdminDashboard({ data }) {
   };
 
   return (
-    <NavSideBar role="admin" data={data}>
+    <NavSideBar role="admin" data={ currentUser }>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatBox title="Total Users" value={stats?.totalUsers ?? '--'} />
         <StatBox title="Total Files Uploaded" value={stats?.totalFiles ?? '--'} />

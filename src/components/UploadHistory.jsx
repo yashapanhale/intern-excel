@@ -2,13 +2,11 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import NavSideBar from './NavSideBar';
 import UploadModel from './UploadModel';
-import { useAuth } from '../UserDetails';
 
-const UploadHistory = ({ role }) => {
+const UploadHistory = ({ role, currentUser }) => {
   const [history, setHistory] = useState([]);
   const [error, setError] = useState('');
   const [uploadModelOpen, setUploadModelOpen] = useState(false);
-  const { user, loading } = useAuth();
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -27,10 +25,19 @@ const UploadHistory = ({ role }) => {
       }
     };
 
-    if (!loading) {
+    if (currentUser) {
       fetchHistory();
     }
-  }, [loading]);
+  }, [currentUser]);
+
+  if (!currentUser) {
+    return <div className="p-6 text-center text-gray-700">Loading user...</div>;
+  }
+
+  // Pagination logic
+  const totalPages = Math.ceil(history.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentItems = history.slice(startIndex, startIndex + itemsPerPage);
 
   // Dummy file upload functions
   const handleFileChange = (e) => {
@@ -41,15 +48,6 @@ const UploadHistory = ({ role }) => {
   const handleUpload = () => {
     console.log('Uploading file...');
   };
-
-  // ✅ Pagination logic
-  const totalPages = Math.ceil(history.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentItems = history.slice(startIndex, startIndex + itemsPerPage);
-
-  if (loading) {
-    return <div className="p-6 text-center text-gray-700">Loading user...</div>;
-  }
 
   return (
     <>
@@ -62,7 +60,7 @@ const UploadHistory = ({ role }) => {
 
       <NavSideBar
         role={role}
-        data={{ user }}
+        data={currentUser}
         setExcelData={() => {}}
         setColumnNames={() => {}}
         setSelectedX={() => {}}
@@ -109,7 +107,7 @@ const UploadHistory = ({ role }) => {
                 );
               })}
 
-              {/* ✅ Pagination Buttons */}
+              {/* Pagination Buttons */}
               <div className="flex justify-center items-center mt-6 space-x-4">
                 <button
                   onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}

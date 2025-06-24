@@ -79,5 +79,37 @@ router.get('/users', async (req, res) => {
   }
 });
 
+router.get('/all-uploads', async (req, res) => {
+  try {
+    const uploads = await UploadHistory.find({})
+      .populate('userID', 'name email') 
+      .sort({ uploadDate: -1 }); 
+    const result = uploads.map(upload => ({
+      _id: upload._id,
+      fileName: upload.fileName,
+      uploadDate: upload.uploadDate,
+      user: upload.userID ? {
+        name: upload.userID.name,
+        email: upload.userID.email
+      } : { name: "Unknown", email: "" }
+    }));
+
+    res.json({ uploads: result });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+router.delete('/users/:id', async (req, res) => {
+  try {
+    const userId = req.params.id;
+    await User.findByIdAndDelete(userId);
+    res.json({ message: 'User deleted successfully' });
+  } catch (err) {
+    console.error('Delete user error:', err);
+    res.status(500).json({ error: 'Failed to delete user' });
+  }
+});
 
 export default router;

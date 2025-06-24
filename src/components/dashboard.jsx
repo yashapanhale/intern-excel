@@ -27,7 +27,7 @@ Chartjs.register(
   Legend
 );
 
-function Dashboard({ role }) {
+function Dashboard({ role, currentUser }) {
   const [data, setData] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [ExcelData, setExcelData] = useState([]);
@@ -162,7 +162,7 @@ function Dashboard({ role }) {
   return (
     <NavSideBar
       role={role}
-      data={data}
+      data={currentUser}
       setExcelData={setExcelData}
       setColumnNames={setColumnNames}
       setSelectedX={setSelectedX}

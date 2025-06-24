@@ -9,7 +9,7 @@ const NavSideBar = ({
   setSelectedX,
   setSelectedY,
   setUploadModelOpen,
-  role = 'user' // default to user
+  role = 'user'
 }) => {
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -42,7 +42,7 @@ const NavSideBar = ({
     { name: 'Graph Section', to: '/admin/graphs' },
     { name: 'Upload History', to: '/admin/history' },
     { name: 'Upload File', isButton: true },
-    { name: "User's List", to: '/admin/users' },
+    { name: "Users Management", to: '/admin/users' },
     { name: 'Settings', to: '/admin/settings' }
   ];
 
