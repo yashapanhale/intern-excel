@@ -1,3 +1,4 @@
+// Schema to store upload history in the mongoDB collection 'uploadhistories':
 import mongoose from "mongoose";
 const uploadHistorySchema=mongoose.Schema({
       userID:

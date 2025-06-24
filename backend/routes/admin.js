@@ -5,7 +5,7 @@ import UploadHistory from '../models/UploadHistory.js';
 
 const router = express.Router();
 
-// GET /api/admin/stats
+// provides info that is used in the admin dashboard:
 router.get('/stats', async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
@@ -32,6 +32,7 @@ router.get('/stats', async (req, res) => {
   }
 });
 
+// gives data for the line chart in the admin dashboard:
 router.get('/user-growth', async (req, res) => {
   try {
     const userGrowth = await User.aggregate([
@@ -52,6 +53,7 @@ router.get('/user-growth', async (req, res) => {
   }
 });
 
+//provides data to display in users management page:
 router.get('/users', async (req, res) => {
   try {
     const users = await User.aggregate([
@@ -79,6 +81,7 @@ router.get('/users', async (req, res) => {
   }
 });
 
+//provides data of all the uploaded files and who uploaded them:
 router.get('/all-uploads', async (req, res) => {
   try {
     const uploads = await UploadHistory.find({})
@@ -101,6 +104,7 @@ router.get('/all-uploads', async (req, res) => {
   }
 });
 
+//function to delete the user:
 router.delete('/users/:id', async (req, res) => {
   try {
     const userId = req.params.id;

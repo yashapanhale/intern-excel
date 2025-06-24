@@ -21,7 +21,6 @@ const AdminUploadHistory = ({ role, currentUser }) => {
         setError('Failed to fetch uploads');
       }
     };
-
     fetchUploads();
   }, []);
 
@@ -51,8 +50,7 @@ const AdminUploadHistory = ({ role, currentUser }) => {
                   <div className="flex justify-between items-start">
                     <div>
                       <span className="font-semibold text-lg text-blue-600">{entry.fileName}</span>
-                      <p className="text-sm text-gray-700 mt-1">
-                        Uploaded by: <span className="font-bold">{entry.user?.name}</span>
+                      <p className="text-sm text-gray-700 mt-1">Uploaded by: <span className="font-bold">{entry.user?.name}</span>
                         {entry.user?.email && (
                           <span className="text-gray-500"> ({entry.user.email})</span>
                         )}
@@ -69,27 +67,13 @@ const AdminUploadHistory = ({ role, currentUser }) => {
 
             {/* Pagination Buttons */}
             <div className="flex justify-center items-center mt-6 space-x-4">
-              <button
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-                className={`px-4 py-2 rounded ${
-                  currentPage === 1 ? 'bg-gray-300 cursor-not-allowed' : 'bg-indigo-600 text-white hover:bg-indigo-700'
-                }`}
-              >
-                Previous
-              </button>
-              <span className="text-sm text-gray-700">
-                Page {currentPage} of {totalPages}
-              </span>
-              <button
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}
-                className={`px-4 py-2 rounded ${
-                  currentPage === totalPages ? 'bg-gray-300 cursor-not-allowed' : 'bg-indigo-600 text-white hover:bg-indigo-700'
-                }`}
-              >
-                Next
-              </button>
+              <button onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1} className={`px-4 py-2 rounded ${currentPage === 1 ? 'bg-gray-300 cursor-not-allowed' : 
+                  'bg-indigo-600 text-white hover:bg-indigo-700'}`}>Previous</button>
+              <span className="text-sm text-gray-700">Page {currentPage} of {totalPages}</span>
+              <button onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages} className={`px-4 py-2 rounded ${currentPage === totalPages ? 'bg-gray-300 cursor-not-allowed' : 
+                  'bg-indigo-600 text-white hover:bg-indigo-700'}`}>Next</button>
             </div>
           </>
         )}

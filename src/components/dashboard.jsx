@@ -167,8 +167,7 @@ function Dashboard({ role, currentUser }) {
       setColumnNames={setColumnNames}
       setSelectedX={setSelectedX}
       setSelectedY={setSelectedY}
-      setUploadModelOpen={setUploadModelOpen}
-    >
+      setUploadModelOpen={setUploadModelOpen}>
       <main className="flex-1 p-6 space-y-6">
         <section className="bg-white rounded-lg shadow p-6 border border-indigo-100">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Graph Settings</h2>
@@ -179,8 +178,7 @@ function Dashboard({ role, currentUser }) {
               <select
                 value={chartType}
                 onChange={(e) => setChartType(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
-              >
+                className="w-full border border-gray-300 rounded-md px-3 py-2">
                 <option value="Bar">Bar</option>
                 <option value="Line">Line</option>
                 <option value="Pie">Pie</option>
@@ -191,8 +189,7 @@ function Dashboard({ role, currentUser }) {
               <select
                 value={selectedX}
                 onChange={(e) => setSelectedX(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
-              >
+                className="w-full border border-gray-300 rounded-md px-3 py-2">
                 {columnNames.map((col) => (
                   <option key={col} value={col}>{col}</option>
                 ))}
@@ -203,8 +200,7 @@ function Dashboard({ role, currentUser }) {
               <select
                 value={selectedY}
                 onChange={(e) => setSelectedY(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
-              >
+                className="w-full border border-gray-300 rounded-md px-3 py-2">
                 {columnNames.map((col) => (
                   <option key={col} value={col}>{col}</option>
                 ))}
@@ -215,8 +211,7 @@ function Dashboard({ role, currentUser }) {
           <div className="text-center mb-4">
             <button
               onClick={handleDownload}
-              className="px-5 py-2 bg-indigo-600 text-white font-medium rounded hover:bg-indigo-700"
-            >
+              className="px-5 py-2 bg-indigo-600 text-white font-medium rounded hover:bg-indigo-700">
               📥 Download Report (PDF)
             </button>
           </div>
@@ -244,8 +239,7 @@ function Dashboard({ role, currentUser }) {
         isOpen={isUploadModelOpen}
         onClose={() => setUploadModelOpen(false)}
         onFileChange={fileChange}
-        onUpload={uploadFile}
-      />
+        onUpload={uploadFile}/>
     </NavSideBar>
   );
 }

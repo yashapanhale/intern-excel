@@ -18,7 +18,7 @@ router.get('/history', verifyToken, async (req, res) => {
   }
 });
 
-//Route to find the record:
+//Route to fetch the data from the history(just an experiment):
 router.get('/data/:id', verifyToken, async (req, res) => {
   try {
     const record = await UploadHistory.findById(req.params.id);
@@ -30,7 +30,7 @@ router.get('/data/:id', verifyToken, async (req, res) => {
   }
 });
 
-// data route to get data from the excel file:
+// data route to get data from the latest uploaded excel file:
 router.get('/data', verifyToken, async (req, res) => {
   try {
     if (req.query.fresh !== 'true') {
@@ -49,9 +49,10 @@ router.get('/data', verifyToken, async (req, res) => {
   }
 });
 
+//fetches the data of the user themselves to show in the settings page:
 router.get('/profile', verifyToken, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password'); // ✅ Use capital 'User'
+    const user = await User.findById(req.user.id).select('-password');
     if (!user) return res.status(404).json({ message: 'User not found' });
     res.json(user);
   } catch (err) {

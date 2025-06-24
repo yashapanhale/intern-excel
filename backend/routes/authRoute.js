@@ -6,7 +6,7 @@ import { verifyToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
-//Login Route:
+//function to handle the login page:
 router.post('/login', async(req, res)=>{
     const { email, password } = req.body;
     if(!email || !password)
@@ -37,7 +37,7 @@ router.post('/login', async(req, res)=>{
     }
 });
 
-//Registration Route:
+//function to handle the registration page:
 router.post('/register', async(req,res) => {
     const { name, email, password, role } = req.body;
     if(!name || !email || !password)
@@ -60,7 +60,7 @@ router.post('/register', async(req,res) => {
     }
 });
 
-//Dashboard Route:
+//function to handle the user's dashboard page/admin's graph section:
 router.get('/dashboard', verifyToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
@@ -72,6 +72,7 @@ router.get('/dashboard', verifyToken, async (req, res) => {
   }
 });
 
+//function to update the user's info from the settings page:
 router.put('/profile', verifyToken, async (req, res) => {
   try {
     const { name, email } = req.body;

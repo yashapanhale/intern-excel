@@ -63,7 +63,7 @@ router.post('/', verifyToken, upload.single('file'), async (req, res) => {
   }
 });
 
-// Latest data API
+// gets the data from the recently uploaded excel file:
 router.get('/data', verifyToken, async (req, res) => {
   const ExcelData = mongoose.model('ExcelData');
   try {

@@ -1,4 +1,3 @@
-// UserDetails.jsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -15,15 +14,13 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
         return;
       }
-
       try {
         console.log("Using token for /profile:", token);
         const res = await axios.get('http://localhost:3000/api/user/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
-
         console.log("Fetched user from /profile:", res.data);
-        setUser(res.data); // <- no `.user` here; your backend returns the user object directly
+        setUser(res.data);
       } catch (err) {
         console.error('Failed to fetch user:', err);
         setUser(null);
@@ -31,7 +28,6 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
       }
     };
-
     fetchUser();
   }, []);
 

@@ -39,14 +39,11 @@ function AdminDashboard({ data, currentUser }) {
       console.error('Failed to fetch stats:', err);
     });
 
-    // Fetch user growth data for line graph
     axios.get('http://localhost:3000/api/admin/user-growth', {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => {
-      // Transform data to ExcelData format for chart
       const data = res.data;
-      // Assuming data.dates and data.counts arrays
       const excelDataFormatted = data.dates.map((date, index) => ({
         date: date,
         count: data.counts[index]
@@ -91,10 +88,7 @@ function AdminDashboard({ data, currentUser }) {
         <StatBox title="Total Users" value={stats?.totalUsers ?? '--'} />
         <StatBox title="Total Files Uploaded" value={stats?.totalFiles ?? '--'} />
         <StatBox title="Total Admins" value={stats?.totalAdmins ?? '--'} />
-        <StatBox
-          title="Recent Uploader"
-          value={stats?.recentUploader ? stats.recentUploader.name : '--'}
-        />
+        <StatBox title="Recent Uploader" value={stats?.recentUploader ? stats.recentUploader.name : '--'}/>
       </div>
 
       <section className="bg-white rounded-lg shadow p-6 border border-indigo-100 space-y-8 mt-8" style={{height: '500px'}}>

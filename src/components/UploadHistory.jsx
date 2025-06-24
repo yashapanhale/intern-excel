@@ -39,7 +39,6 @@ const UploadHistory = ({ role, currentUser }) => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentItems = history.slice(startIndex, startIndex + itemsPerPage);
 
-  // Dummy file upload functions
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     console.log('Selected file:', file);
@@ -55,8 +54,7 @@ const UploadHistory = ({ role, currentUser }) => {
         isOpen={uploadModelOpen}
         onClose={() => setUploadModelOpen(false)}
         onFileChange={handleFileChange}
-        onUpload={handleUpload}
-      />
+        onUpload={handleUpload}/>
 
       <NavSideBar
         role={role}
@@ -65,8 +63,7 @@ const UploadHistory = ({ role, currentUser }) => {
         setColumnNames={() => {}}
         setSelectedX={() => {}}
         setSelectedY={() => {}}
-        setUploadModelOpen={setUploadModelOpen}
-      >
+        setUploadModelOpen={setUploadModelOpen}>
         <div className="p-6 max-w-3xl mx-auto">
           <h2 className="text-2xl font-bold mb-6">📂 Upload History</h2>
           {error && <p className="text-red-500 mb-4">{error}</p>}
@@ -85,8 +82,7 @@ const UploadHistory = ({ role, currentUser }) => {
                           onClick={() =>
                             (window.location.href = `/dashboard?fileId=${entry._id}`)
                           }
-                          className="font-semibold text-lg text-blue-600 hover:underline"
-                        >
+                          className="font-semibold text-lg text-blue-600 hover:underline">
                           {entry.fileName}
                         </button>
                         <p className="text-sm text-gray-700 mt-1">
@@ -114,22 +110,14 @@ const UploadHistory = ({ role, currentUser }) => {
                   disabled={currentPage === 1}
                   className={`px-4 py-2 rounded ${
                     currentPage === 1 ? 'bg-gray-300 cursor-not-allowed' : 'bg-indigo-600 text-white hover:bg-indigo-700'
-                  }`}
-                >
-                  Previous
-                </button>
-                <span className="text-sm text-gray-700">
-                  Page {currentPage} of {totalPages}
-                </span>
+                  }`}>Previous</button>
+                <span className="text-sm text-gray-700">Page {currentPage} of {totalPages}</span>
                 <button
                   onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
                   className={`px-4 py-2 rounded ${
-                    currentPage === totalPages ? 'bg-gray-300 cursor-not-allowed' : 'bg-indigo-600 text-white hover:bg-indigo-700'
-                  }`}
-                >
-                  Next
-                </button>
+                    currentPage === totalPages ? 'bg-gray-300 cursor-not-allowed' : 
+                    'bg-indigo-600 text-white hover:bg-indigo-700'}`}> Next</button>
               </div>
             </>
           )}

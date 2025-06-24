@@ -9,8 +9,6 @@ function Settings({ role, currentUser }) {
     email: currentUser?.user?.email || currentUser?.email || ''
   });
   const [loading, setLoading] = useState(false);
-
-  // For instant UI update after save (optional)
   const [profile, setProfile] = useState(currentUser?.user || currentUser);
 
   if (!profile) {
@@ -74,10 +72,7 @@ function Settings({ role, currentUser }) {
               </div>
               <button
                 className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-                onClick={() => setEditing(true)}
-              >
-                Edit Profile
-              </button>
+                onClick={() => setEditing(true)}>Edit Profile</button>
             </>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -89,8 +84,7 @@ function Settings({ role, currentUser }) {
                   value={form.name}
                   onChange={handleChange}
                   className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
-                  required
-                />
+                  required/>
               </div>
               <div>
                 <label className="block font-semibold text-gray-700">Email:</label>
@@ -100,25 +94,20 @@ function Settings({ role, currentUser }) {
                   value={form.email}
                   onChange={handleChange}
                   className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
-                  required
-                />
+                  required/>
               </div>
               <div className="flex space-x-2">
                 <button
                   type="submit"
                   className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                  disabled={loading}
-                >
+                  disabled={loading}>
                   {loading ? "Saving..." : "Save"}
                 </button>
                 <button
                   type="button"
                   className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
                   onClick={() => setEditing(false)}
-                  disabled={loading}
-                >
-                  Cancel
-                </button>
+                  disabled={loading}>Cancel</button>
               </div>
             </form>
           )}

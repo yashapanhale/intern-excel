@@ -68,44 +68,26 @@ const UserManagement = ({ currentUser }) => {
                 <div>{user.fileCount}</div>
                 <div>
                   <span className={`px-2 py-1 rounded text-xs ${
-                    (user.role || 'user') === 'admin' ? 'bg-indigo-500 text-white' : 'bg-gray-200 text-gray-700'
-                  }`}>
+                    (user.role || 'user') === 'admin' ? 'bg-indigo-500 text-white' : 'bg-gray-200 text-gray-700'}`}>
                     {user.role || 'user'}
                   </span>
                 </div>
                 <div>
                   <button
                     className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                    onClick={() => handleDelete(user._id)}
-                  >
-                    Delete
-                  </button>
+                    onClick={() => handleDelete(user._id)}>Delete</button>
                 </div>
               </div>
             ))}
             {/* Pagination Buttons */}
             <div className="flex justify-center items-center mt-6 space-x-4">
-              <button
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-                className={`px-4 py-2 rounded ${
-                  currentPage === 1 ? 'bg-gray-300 cursor-not-allowed' : 'bg-indigo-600 text-white hover:bg-indigo-700'
-                }`}
-              >
-                Previous
-              </button>
-              <span className="text-sm text-gray-700">
-                Page {currentPage} of {totalPages}
-              </span>
-              <button
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}
-                className={`px-4 py-2 rounded ${
-                  currentPage === totalPages ? 'bg-gray-300 cursor-not-allowed' : 'bg-indigo-600 text-white hover:bg-indigo-700'
-                }`}
-              >
-                Next
-              </button>
+              <button onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1} className={`px-4 py-2 rounded ${currentPage === 1 ? 'bg-gray-300 cursor-not-allowed' : 
+                  'bg-indigo-600 text-white hover:bg-indigo-700'}`}>Previous</button>
+              <span className="text-sm text-gray-700"> Page {currentPage} of {totalPages}</span>
+              <button onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages} className={`px-4 py-2 rounded ${currentPage === totalPages ? 'bg-gray-300 cursor-not-allowed' : 
+                  'bg-indigo-600 text-white hover:bg-indigo-700'}`}>Next</button>
             </div>
           </>
         )}

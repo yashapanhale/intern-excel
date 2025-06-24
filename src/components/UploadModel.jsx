@@ -13,16 +13,12 @@ const UploadModel = ({ isOpen, onClose, onFileChange, onUpload }) => {
                 className='mb-4 w-full border border-gray-300 rounded-md px-3 py-2' />
                 <div className='flex justify-end space-x-2'>
                     <button onClick={onClose}
-                    className='px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400'>
-                        Cancel
-                    </button>
+                    className='px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400'>Cancel</button>
                     <button onClick={() => {
                         onUpload();
                         onClose();
                     }}
-                    className='px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700'>
-                        Upload
-                    </button>
+                    className='px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700'>Upload</button>
                 </div>
             </div>
         </div>
