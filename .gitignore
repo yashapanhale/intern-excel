@@ -8,7 +8,7 @@ Frontend/node_modules/
 dist/
 build/
 .vite/
-/backend/.env
+\DOCS\Web deb\intern-excel\backend\.env
 
 # IDE / OS files
 .vscode/
