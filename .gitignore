@@ -8,6 +8,7 @@ Frontend/node_modules/
 dist/
 build/
 .vite/
+/backend/.env
 
 # IDE / OS files
 .vscode/
